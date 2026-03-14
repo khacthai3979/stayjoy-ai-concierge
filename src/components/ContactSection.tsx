@@ -1,14 +1,31 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const ContactSection = () => {
   const [form, setForm] = useState({ name: "", phone: "", email: "", business: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Cảm ơn bạn! Chúng tôi sẽ liên hệ sớm nhất.");
-    setForm({ name: "", phone: "", email: "", business: "", message: "" });
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("contact_submissions").insert({
+        name: form.name,
+        phone: form.phone,
+        email: form.email || null,
+        business: form.business || null,
+        message: form.message || null,
+      });
+      if (error) throw error;
+      toast.success("Cảm ơn bạn! Chúng tôi sẽ liên hệ sớm nhất.");
+      setForm({ name: "", phone: "", email: "", business: "", message: "" });
+    } catch {
+      toast.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -99,9 +116,10 @@ const ContactSection = () => {
 
           <button
             type="submit"
-            className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-lg glow-gold hover:opacity-90 transition-opacity"
+            disabled={submitting}
+            className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-lg glow-gold hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            Đặt Lịch Tư Vấn Ngay
+            {submitting ? "Đang gửi..." : "Đặt Lịch Tư Vấn Ngay"}
           </button>
         </motion.form>
       </div>
