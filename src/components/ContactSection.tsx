@@ -1,14 +1,31 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const ContactSection = () => {
   const [form, setForm] = useState({ name: "", phone: "", email: "", business: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Cảm ơn bạn! Chúng tôi sẽ liên hệ sớm nhất.");
-    setForm({ name: "", phone: "", email: "", business: "", message: "" });
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("contact_submissions").insert({
+        name: form.name,
+        phone: form.phone,
+        email: form.email || null,
+        business: form.business || null,
+        message: form.message || null,
+      });
+      if (error) throw error;
+      toast.success("Cảm ơn bạn! Chúng tôi sẽ liên hệ sớm nhất.");
+      setForm({ name: "", phone: "", email: "", business: "", message: "" });
+    } catch {
+      toast.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
