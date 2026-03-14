@@ -116,9 +116,10 @@ const ContactSection = () => {
 
           <button
             type="submit"
-            className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-lg glow-gold hover:opacity-90 transition-opacity"
+            disabled={submitting}
+            className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-lg glow-gold hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            Đặt Lịch Tư Vấn Ngay
+            {submitting ? "Đang gửi..." : "Đặt Lịch Tư Vấn Ngay"}
           </button>
         </motion.form>
       </div>
